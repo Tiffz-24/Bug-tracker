@@ -4,6 +4,7 @@ import Project from "./Project";
 import "./css/style.css";
 import Popup from 'reactjs-popup';
 import 'reactjs-popup/dist/index.css';
+import Card from "react-bootstrap/Card"
 
 export default function ProjectHome(id){
     const [readyForRender, setReadyForRender] = useState(false);
@@ -49,9 +50,14 @@ export default function ProjectHome(id){
 
     const projectInfo = (data) => {
         return(
-            <div className = "project" onClick = {() => setProjSelected(data)}>
-                <p>{data.project_name}</p>
-            </div>
+            <Card className = "project" style={{ width: '18rem' }} onClick = {() => setProjSelected(data)}>
+                <Card.Body>
+                    <Card.Title>{data.project_name}</Card.Title>
+                    <Card.Text>
+                   {data.status}
+                    </Card.Text>
+                </Card.Body>
+            </Card>
         );
     };
 

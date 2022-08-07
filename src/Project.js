@@ -6,6 +6,7 @@ import 'reactjs-popup/dist/index.css';
 import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
 import Dropdown from 'react-bootstrap/Dropdown';
+import Card from "react-bootstrap/Card"
 
 export default function Project(props){
 
@@ -13,6 +14,7 @@ export default function Project(props){
     const [bugData, setBugData] = useState([]);
     const [popUp, setPopUp] = useState(false);
     const [open, setOpen] = useState(false);
+    const [notesOpen, setNotesOpen] = useState(false);
 
     const [newName, setNewName] = useState([""]);
     const [newPriority, setNewPriority] = useState([""]);
@@ -142,16 +144,40 @@ export default function Project(props){
         }
     }
 
+    const changeNotes = (bug_id) =>{
+        try{
+            const result = axios.put('/bugs/' + bug_id, {notes: newNotes});
+        }
+        catch(e){
+            console.log(e);
+
+        }
+    }
+
     const bugInfo = (data) => {
         return(
-            <div key={data.bug_id} style = {{display:"flex", flexDirection: "row"}}>
-            <div className = "project">
-                <div style = {{display:"flex", flexDirection: "row"}}>
-                    <p>{data.bug_name}</p>
-                    <div style = {{float: "right"}}>
-                        <div onClick = {() => changeBugStatus(data.status, data.bug_id)}>{data.status} </div>
-                        <Dropdown>
-                            <Dropdown.Toggle variant="success" id="dropdown-basic">
+            <Card className = "project" key={data.bug_id}>
+                <Card.Body style = {{display:"flex", flexDirection: "row", flexGrow:1, width: "100%", justifyContent:"space-between"}}>
+                    <Card.Title>{data.bug_name}</Card.Title>
+                    <Card.Text onClick = {() => changeBugStatus(data.status, data.bug_id)}>
+                   {data.status}
+                    </Card.Text>
+                    <Card.Text>
+                        <button type="button" className="button" onClick={() => setNotesOpen(o => !o)}>
+                            see notes
+                        </button>
+                        <Popup open={notesOpen}>
+                        <Form onSubmit = {changeNotes(data.bug_id)}>
+                            <Form.Group controlId="formFile">
+                                <Form.Label>Notes</Form.Label>
+                                <Form.Control type = "text" onChange={e => setNewNotes(e.target.value)} placeholder = {data.notes}/>
+                                <Button style = {{marginTop:"10px"}} type = "submit">Save</Button>
+                            </Form.Group>
+                        </Form>
+                        </Popup>
+                    </Card.Text>
+                    <Dropdown> 
+                            <Dropdown.Toggle variant="info">
                             {data.priority}
                             </Dropdown.Toggle>
                             <Dropdown.Menu>
@@ -160,25 +186,22 @@ export default function Project(props){
                                 <Dropdown.Item onClick = {() => changeBugPriority("high", data.bug_id)}>High</Dropdown.Item>
                             </Dropdown.Menu>
                         </Dropdown>
-                    </div>
-                </div>
-            </div>
-            <div style = {{textAlign:"left"}}><h3>{data.notes}</h3></div>
-            </div>
+                </Card.Body>
+            </Card>
         );
     };
 
     return(
         <div id = "tab">
             <header>{props.name}</header> 
-            <header onClick = {changeProjStatus}>{props.status === "in progress"? "set to completed" : "set to in progress"}</header>
+            <Button style = {{display: "block", margin: "20px auto"}} onClick = {changeProjStatus}>{props.status === "in progress"? "set to completed" : "set to in progress"}</Button>
             {readyForRender &&
             <div style = {{display:"flex", flexDirection:"column", justifyContent: "space-between"}}>
                 {Object.values(bugData).map(a => bugInfo(a)) }
             </div>
             }
 
-            <button type="button" className="button" onClick={() => setOpen(o => !o)}>
+            <button type="button" className="button center" onClick={() => setOpen(o => !o)}>
                  Add new bug
             </button>
 
